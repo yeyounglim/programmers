@@ -30,7 +30,7 @@ public class Main {
         if (wall == 3) {
             int[][] tempLab = new int[N][M];
             for (int i = 0; i < N; i++) {
-                tempLab[i] = lab[i].clone();
+                System.arraycopy(lab[i], 0, tempLab[i], 0, M);
             }
 
             for (int i : current) {
@@ -49,6 +49,7 @@ public class Main {
 
     private static int getSafeArea(int[][] tempLab) {
         Queue<int[]> queue = new LinkedList<>(viruses);
+        boolean[][] visited = new boolean[N][M];
 
         int[] dr = {-1, 1, 0, 0};
         int[] dc = {0, 0, -1, 1};
@@ -57,18 +58,24 @@ public class Main {
             int[] pos = queue.poll();
             for (int i = 0; i < 4; i++) {
                 int row = pos[0] + dr[i];
-                int column = pos[1] + dc[i];
+                int col = pos[1] + dc[i];
 
-                if (row >= 0 && column >= 0 && row < N && column < M && tempLab[row][column] == 0) {
-                    tempLab[row][column] = 2;
-                    queue.add(new int[]{row, column});
+                if (row >= 0 && col >= 0 && row < N && col < M && tempLab[row][col] == 0 && !visited[row][col]) {
+                    tempLab[row][col] = 2;
+                    visited[row][col] = true;
+                    queue.add(new int[]{row, col});
                 }
             }
         }
 
-        return (int) Arrays.stream(tempLab)
-                .flatMapToInt(Arrays::stream)
-                .filter(value -> value == 0)
-                .count();
+        int safeArea = 0;
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                if (tempLab[i][j] == 0) {
+                    safeArea++;
+                }
+            }
+        }
+        return safeArea;
     }
 }
